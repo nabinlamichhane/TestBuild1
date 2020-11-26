@@ -1,5 +1,8 @@
 version: 0.2
 phases:
+  install:
+    commands:
+      - docker login -u $dockerhub_username -p $dockerhub_password
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...

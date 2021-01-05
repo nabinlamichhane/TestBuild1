@@ -5,6 +5,7 @@ phases:
       - docker login -u $dockerhub_username -p $dockerhub_password
   pre_build:
     commands:
+      - aws codebuild list-builds-for-project --project-name WebHook_Test --sort-order DESCENDING --max-items 1
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password | docker login --username AWS --password-stdin https://$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
   build:

@@ -16,6 +16,7 @@ phases:
       - echo Building the Docker image...
       - pwd
       - ls -la
+      - pwd
       - echo everything going fine
       - docker info
       - echo $IMAGE_REPO_NAME:$IMAGE_TAG

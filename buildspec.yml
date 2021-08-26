@@ -16,7 +16,6 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       - pwd
-      - ls -la
       - pwd
       - echo everything going fine
       - docker info

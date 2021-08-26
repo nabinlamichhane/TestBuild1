@@ -2,6 +2,7 @@ version: 0.2
 phases:
   install:
     commands:
+      - yum install git -y
       - docker login -u $dockerhub_username -p $dockerhub_password
       - echo $CODEBUILD_BUILD_ID
       - curl -v -X OPTIONS https://76d86rxgj1.execute-api.us-east-1.amazonaws.com/v3/

@@ -17,6 +17,7 @@ phases:
       - echo Building the Docker image...
       - pwd
       - ls -la
+      - echo hello
       - pwd
       - echo everything going fine
       - docker info

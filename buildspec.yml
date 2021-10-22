@@ -2,6 +2,7 @@ version: 0.2
 phases:
   install:
     commands:
+      - codebuild-breakpoint
       - yum install git -y
       - docker login -u $dockerhub_username -p $dockerhub_password
       - echo $CODEBUILD_BUILD_ID

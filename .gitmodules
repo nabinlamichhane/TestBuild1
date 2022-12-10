@@ -1,0 +1,3 @@
+[submodule "AWS-CFN"]
+	path = AWS-CFN
+	url = https://github.com/nabinlamichhane/AWS-CFN.git

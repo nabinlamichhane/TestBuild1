@@ -1,36 +1,34 @@
 version: 0.2
+
+env:
+  variables:
+    GITHUB_REPO: "nabinlamichhane/TestBuild1"
+  secrets-manager:
+    GITHUB_TOKEN: github-access:Token
+
 phases:
-  install:
-    commands:
-      - codebuild-breakpoint
-      - echo $CODEBUILD_SOURCE_VERSION
-      - yum install git -y
-      - ls -la
-      - docker login -u $dockerhub_username -p $dockerhub_password
-      - echo $CODEBUILD_BUILD_ID
-      - curl -v -X OPTIONS https://76d86rxgj1.execute-api.us-east-1.amazonaws.com/v3/
-      - pwd
-      - ls -la
   pre_build:
     commands:
-      # - aws codebuild list-builds-for-project --project-name WebHook_Test --sort-order DESCENDING --max-items 1
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password | docker login --username AWS --password-stdin https://$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+      - echo "Starting GitHub Actions Runner setup at $(date)"
+      - echo "Getting runner registration token..."
+      - RUNNER_TOKEN=$(curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${GITHUB_REPO}/actions/runners/registration-token | jq -r .token)
+      - export RUNNER_VERSION=2.311.0
+      - export RUNNER_ARCH=linux-x64
+      
   build:
     commands:
-      - echo Build started on `date`
-      - echo Building the Docker image...
-      - pwd
-      - ls -la
-      - echo hello
-      - pwd
-      - echo everything going fine
-      - docker info
-      - echo $IMAGE_REPO_NAME:$IMAGE_TAG
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo "Downloading GitHub Actions Runner..."
+      - mkdir -p actions-runner && cd actions-runner
+      - curl -o actions-runner-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz
+      - tar xzf ./actions-runner-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz
+      
+      - echo "Configuring runner..."
+      - ./config.sh --url https://github.com/${GITHUB_REPO} --token ${RUNNER_TOKEN} --name codebuild-runner-${CODEBUILD_BUILD_NUMBER} --work _work --labels codebuild,aws --ephemeral --disableupdate
+      
+      - echo "Starting runner..."
+      - timeout 3600 ./run.sh || echo "Runner completed or timed out"
+      
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo "Cleaning up runner at $(date)"
+      - cd actions-runner && ./config.sh remove --token ${RUNNER_TOKEN} || true

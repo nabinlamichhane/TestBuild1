@@ -23,12 +23,12 @@ phases:
       - tar xzf ./actions-runner-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz
       
       - echo "Configuring runner..."
+      - export RUNNER_ALLOW_RUNASROOT=1
       - ./config.sh --url https://github.com/${GITHUB_REPO} --token ${RUNNER_TOKEN} --name codebuild-runner-${CODEBUILD_BUILD_NUMBER} --work _work --labels codebuild,aws --ephemeral --disableupdate
       
       - echo "Starting runner..."
-      - timeout 3600 ./run.sh || echo "Runner completed or timed out"
+      - ./run.sh || echo "Runner completed or timed out"
       
   post_build:
     commands:
       - echo "Cleaning up runner at $(date)"
-      - cd actions-runner && ./config.sh remove --token ${RUNNER_TOKEN} || true

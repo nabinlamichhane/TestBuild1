@@ -1,0 +1,18 @@
+name: Test CodeBuild Runner
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: [self-hosted, codebuild, aws]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Test runner
+        run: |
+          echo "Running on CodeBuild runner"
+          echo "Build: ${CODEBUILD_BUILD_NUMBER:-N/A}"
+          uname -a

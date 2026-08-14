@@ -6,13 +6,15 @@ on:
 
 jobs:
   test:
-    runs-on: [self-hosted, codebuild, aws]
+    runs-on:
+      - codebuild-github-actions-runner-${{ github.run_id }}-${{ github.run_attempt }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Test runner
         run: |
           echo "Running on CodeBuild runner"
           echo "Build: ${CODEBUILD_BUILD_NUMBER:-N/A}"
           uname -a
+
